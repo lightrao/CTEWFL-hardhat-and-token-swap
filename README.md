@@ -44,3 +44,12 @@ run:
 ```sh
 npx hardhat test
 ```
+
+### Connecting to Mainnet Fork and Getting Wallet Details for Signing Transactions
+
+run a hardhat node locally forked from ETH mainnet:
+
+```sh
+source .env
+npx hardhat node -fork ${ALCHEMY_URL}
+```
