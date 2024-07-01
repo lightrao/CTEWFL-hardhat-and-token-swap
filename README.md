@@ -51,5 +51,5 @@ run a hardhat node locally forked from ETH mainnet:
 
 ```sh
 source .env
-npx hardhat node -fork ${ALCHEMY_URL}
+npx hardhat node --fork ${ALCHEMY_URL}
 ```
