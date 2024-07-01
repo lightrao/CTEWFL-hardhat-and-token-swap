@@ -1,5 +1,6 @@
 const { expect, assert } = require("chai");
 const { ethers } = require("hardhat");
+require("dotenv").config();
 
 const {
   addressFactory,
@@ -19,9 +20,7 @@ describe("Read and Write to the Blockchain", () => {
     amountIn;
 
   // connecting to provider
-  provider = new ethers.providers.JsonRpcProvider(
-    "https://eth-mainnet.alchemyapi.io/v2/cQ2Bb9ZudvJZUA0TjgzVYUOHfgrkYpa8"
-  );
+  provider = new ethers.providers.JsonRpcProvider(process.env.ALCHEMY_URL);
 
   // contract addresses
   contractFactory = new ethers.Contract(addressFactory, factoryABI, provider);

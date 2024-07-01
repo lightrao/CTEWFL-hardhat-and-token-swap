@@ -38,3 +38,9 @@ npx hardhat test
 ### Connecting to Contract Addresses
 
 create ./utils folder, and create AbiList.js and AddressList.js in it
+create ./test/sendSwapTX.js file
+run:
+
+```sh
+npx hardhat test
+```
