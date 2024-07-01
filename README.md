@@ -1,15 +1,36 @@
-# Basic Sample Hardhat Project
+# Hardhat and Token Swap
 
-This project demonstrates a basic Hardhat use case. It comes with a sample contract, a test for that contract, a sample script that deploys that contract, and an example of a task implementation, which simply lists the available accounts.
+### Quickstart
 
-Try running some of the following tasks:
+1. Clone the project repository and navigate into it:
 
-```shell
-npx hardhat accounts
-npx hardhat compile
-npx hardhat clean
+   ```sh
+   git clone <repository_url>
+   cd <repository_directory>
+   ```
+
+2. Install the project dependencies:
+
+   ```sh
+   npm ci
+   ```
+
+3. Run Hardhat:
+
+   ```sh
+   npx hardhat
+   ```
+
+### Test driven development
+
+create ./scripts/log-hello.js file, run the script:
+
+```sh
+npx hardhat run scripts/log-hello.js
+```
+
+run scripts in ./test folder:
+
+```sh
 npx hardhat test
-npx hardhat node
-node scripts/sample-script.js
-npx hardhat help
 ```
