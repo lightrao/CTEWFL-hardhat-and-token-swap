@@ -53,3 +53,18 @@ run a hardhat node locally forked from ETH mainnet:
 source .env
 npx hardhat node --fork ${ALCHEMY_URL}
 ```
+
+### Building Our Swap Transaction
+
+update ./test/sendSwapTX.js file
+
+### Reviewing Our Transaction and Receipt
+
+update ./test/sendSwapTX.js file
+run:
+
+```sh
+npx hardhat test --network localhost
+npx hardhat test --network hardhat
+npx hardhat test
+```
