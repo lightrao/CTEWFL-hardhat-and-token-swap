@@ -29,8 +29,8 @@ module.exports = {
     },
     sepolia: {
       // Configuration for the Sepolia testnet
-      url: SEPOLIA_RPC_URL, // RPC URL for connecting to Sepolia
-      accounts: PRIVATE_KEY !== "" ? [PRIVATE_KEY] : [], // Array of private keys for deploying contracts
+      url: process.env.SEPOLIA_RPC_URL, // RPC URL for connecting to Sepolia
+      accounts: process.env.PRIVATE_KEY !== "" ? [process.env.PRIVATE_KEY] : [], // Array of private keys for deploying contracts
       chainId: 11155111, // Chain ID for Sepolia
     },
     localhost: {
