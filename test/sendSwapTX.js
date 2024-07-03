@@ -91,7 +91,7 @@ describe("Read and Write to the Blockchain", () => {
       Date.now() + 1000 * 60 * 5, // deadline,
       {
         gasLimit: 200000,
-        gasPrice: ethers.utils.parseUnits("5.5", "gwei"),
+        gasPrice: ethers.utils.parseUnits("50.5", "gwei"),
       } // gas
     );
 

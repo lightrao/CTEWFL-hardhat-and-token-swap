@@ -21,11 +21,10 @@ module.exports = {
   defaultNetwork: "hardhat",
   solidity: "0.8.4",
   networks: {
-    hardhat: {},
-    hardhatForkingETHMainnet: {
-      forking: {
-        url: process.env.ALCHEMY_URL,
-      },
+    hardhat: {
+      // forking: {
+      //   url: process.env.ALCHEMY_URL, // your Alchemy mainnet URL
+      // },
     },
     sepolia: {
       // Configuration for the Sepolia testnet
