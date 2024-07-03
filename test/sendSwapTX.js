@@ -21,16 +21,16 @@ describe("Read and Write to the Blockchain", () => {
   // connecting to provider
   provider = new ethers.providers.JsonRpcProvider(process.env.ALCHEMY_URL); // provider connecting to ETH mainnet
 
+  // contract objects
+  contractFactory = new ethers.Contract(addressFactory, factoryABI, provider);
+  contractRouter = new ethers.Contract(addressRouter, routerABI, provider);
+  contractToken = new ethers.Contract(addressFrom, erc20ABI, provider);
+
   // Check chain ID
   const checkChainId = async () => {
     const network = await provider.getNetwork();
     console.log(`Chain ID: ${network.chainId}`);
   };
-
-  // contract objects
-  contractFactory = new ethers.Contract(addressFactory, factoryABI, provider);
-  contractRouter = new ethers.Contract(addressRouter, routerABI, provider);
-  contractToken = new ethers.Contract(addressFrom, erc20ABI, provider);
 
   // get price information
   const getAmountOut = async () => {
