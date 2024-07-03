@@ -21,6 +21,12 @@ describe("Read and Write to the Blockchain", () => {
   // connecting to provider
   provider = new ethers.providers.JsonRpcProvider(process.env.ALCHEMY_URL); // provider connecting to ETH mainnet
 
+  // Check chain ID
+  const checkChainId = async () => {
+    const network = await provider.getNetwork();
+    console.log(`Chain ID: ${network.chainId}`);
+  };
+
   // contract objects
   contractFactory = new ethers.Contract(addressFactory, factoryABI, provider);
   contractRouter = new ethers.Contract(addressRouter, routerABI, provider);
@@ -37,6 +43,7 @@ describe("Read and Write to the Blockchain", () => {
   };
 
   beforeEach(async function () {
+    await checkChainId(); // Log chain ID before each test
     const decimals = await contractToken.decimals();
     const amountInHuman = "1";
     amountIn = ethers.utils.parseUnits(amountInHuman, decimals).toString();
@@ -97,10 +104,10 @@ describe("Read and Write to the Blockchain", () => {
 
     console.log("");
     console.log("SWAP TRANSACTION");
-    console.log(txSwap);
+    // console.log(txSwap);
 
     console.log("");
     console.log("TRANSACTION RECEIPT");
-    console.log(txReceipt);
+    // console.log(txReceipt);
   });
 });
