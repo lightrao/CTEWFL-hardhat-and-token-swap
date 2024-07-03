@@ -21,10 +21,17 @@ module.exports = {
   defaultNetwork: "hardhat",
   solidity: "0.8.4",
   networks: {
-    hardhat: {
-      // forking: {
-      //   url: process.env.ALCHEMY_URL,
-      // },
+    hardhat: {},
+    hardhatForkingETHMainnet: {
+      forking: {
+        url: process.env.ALCHEMY_URL,
+      },
+    },
+    sepolia: {
+      // Configuration for the Sepolia testnet
+      url: SEPOLIA_RPC_URL, // RPC URL for connecting to Sepolia
+      accounts: PRIVATE_KEY !== "" ? [PRIVATE_KEY] : [], // Array of private keys for deploying contracts
+      chainId: 11155111, // Chain ID for Sepolia
     },
     localhost: {
       // Configuration for local Ethereum node

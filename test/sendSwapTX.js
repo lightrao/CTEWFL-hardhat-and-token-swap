@@ -104,10 +104,10 @@ describe("Read and Write to the Blockchain", () => {
 
     console.log("");
     console.log("SWAP TRANSACTION");
-    // console.log(txSwap);
+    console.log(txSwap);
 
     console.log("");
     console.log("TRANSACTION RECEIPT");
-    // console.log(txReceipt);
+    console.log(txReceipt);
   });
 });
