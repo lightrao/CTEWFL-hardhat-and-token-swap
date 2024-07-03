@@ -3,37 +3,31 @@ const { ethers } = require("hardhat");
 require("dotenv").config();
 
 const {
-  addressFactory,
-  addressRouter,
-  addressFrom,
-  addressTo,
+  addressFactory, // Uniswap V2 Factory Contract address on ETH mainnet
+  addressRouter, // Uniswap V2 Router02 Contract address on ETH mainnet
+  addressFrom, // WETH Contract address on ETH mainnet
+  addressTo, // SUSHI Contract address on ETH mainnet
 } = require("../utils/AddressList");
 
-const { erc20ABI, factoryABI, routerABI } = require("../utils/AbiList");
+const {
+  erc20ABI,
+  factoryABI, // ABI for Uniswap V2 Factory Contract
+  routerABI, // ABI for Uniswap V2 Router Contract
+} = require("../utils/AbiList");
 
 describe("Read and Write to the Blockchain", () => {
-  let provider,
-    contractFactory,
-    contractRouter,
-    contractToken,
-    decimals,
-    amountIn;
+  let provider, contractFactory, contractRouter, contractToken, amountIn;
 
   // connecting to provider
-  provider = new ethers.providers.JsonRpcProvider(process.env.ALCHEMY_URL);
+  provider = new ethers.providers.JsonRpcProvider(process.env.ALCHEMY_URL); // provider connecting to ETH mainnet
 
-  // contract addresses
+  // contract objects
   contractFactory = new ethers.Contract(addressFactory, factoryABI, provider);
   contractRouter = new ethers.Contract(addressRouter, routerABI, provider);
   contractToken = new ethers.Contract(addressFrom, erc20ABI, provider);
 
-  const amountInHuman = "1";
-  amountIn = ethers.utils.parseUnits(amountInHuman, decimals).toString();
-
   // get price information
   const getAmountOut = async () => {
-    decimals = await contractToken.decimals();
-
     const amountsOut = await contractRouter.getAmountsOut(amountIn, [
       addressFrom,
       addressTo,
@@ -41,6 +35,12 @@ describe("Read and Write to the Blockchain", () => {
 
     return amountsOut[1].toString();
   };
+
+  beforeEach(async function () {
+    const decimals = await contractToken.decimals();
+    const amountInHuman = "1";
+    amountIn = ethers.utils.parseUnits(amountInHuman, decimals).toString();
+  });
 
   it("connects to a provider, factory, token and router", () => {
     assert(provider._isProvider);
