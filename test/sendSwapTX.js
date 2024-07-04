@@ -45,7 +45,7 @@ describe("Read and Write to the Blockchain", () => {
     contractToken = new ethers.Contract(addressFrom, erc20ABI, provider);
 
     const decimals = await contractToken.decimals();
-    const amountInHuman = "1";
+    const amountInHuman = "1"; // Ensure this value is sufficient for testing
     amountIn = ethers.utils.parseUnits(amountInHuman, decimals).toString();
 
     // Check chain ID
@@ -91,7 +91,7 @@ describe("Read and Write to the Blockchain", () => {
     console.log(`Amount Out: ${amountOut}`);
 
     // Wrap ETH to WETH
-    const ethAmount = ethers.utils.parseEther("10.0"); // amount of ETH to wrap
+    const ethAmount = ethers.utils.parseUnits("10.0", 18); // Ensure this is enough for the amountIn
     await wrapETH(ownerSigner, ethAmount);
 
     // Check balance of the token to be swapped
