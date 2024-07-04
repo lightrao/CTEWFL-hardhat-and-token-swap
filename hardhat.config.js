@@ -9,9 +9,9 @@ module.exports = {
   solidity: "0.8.4",
   networks: {
     hardhat: {
-      // forking: {
-      //   url: process.env.ALCHEMY_URL, // your Alchemy mainnet URL
-      // },
+      forking: {
+        url: process.env.ALCHEMY_URL, // your Alchemy mainnet URL
+      },
     },
     sepolia: {
       // Configuration for the Sepolia testnet
