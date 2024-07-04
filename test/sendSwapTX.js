@@ -82,6 +82,18 @@ describe("Read and Write to the Blockchain", () => {
 
     const amountOut = await getAmountOut();
 
+    // Approve the Uniswap router to spend the token
+    const approveTx = await contractToken
+      .connect(ownerSigner)
+      .approve(addressRouter, amountIn);
+    await approveTx.wait();
+
+    // Log balance before the transaction
+    const balanceBefore = await ownerSigner.getBalance();
+    console.log(
+      `Balance before swap: ${ethers.utils.formatEther(balanceBefore)} ETH`
+    );
+
     const txSwap = await mainnetForkUniswapRouter.swapExactTokensForTokens(
       amountIn, // amount In,
       amountOut, // amount Out,
@@ -91,10 +103,17 @@ describe("Read and Write to the Blockchain", () => {
       {
         gasLimit: 200000,
         gasPrice: ethers.utils.parseUnits("50.5", "gwei"),
-      } // gas
+        type: 0, // Explicitly set the transaction type to 0 for legacy transactions
+      }
     );
 
     assert(txSwap.hash);
+
+    // Log balance after the transaction
+    const balanceAfter = await ownerSigner.getBalance();
+    console.log(
+      `Balance after swap: ${ethers.utils.formatEther(balanceAfter)} ETH`
+    );
 
     const mainnetForkProvider = waffle.provider;
     const txReceipt = await mainnetForkProvider.getTransactionReceipt(
