@@ -18,6 +18,15 @@ const {
 describe("Read and Write to the Blockchain", () => {
   let provider, contractFactory, contractRouter, contractToken, amountIn;
 
+  // get price information
+  const getAmountOut = async () => {
+    const amountsOut = await contractRouter.getAmountsOut(amountIn, [
+      addressFrom,
+      addressTo,
+    ]);
+    return amountsOut[1].toString();
+  };
+
   before(async () => {
     // connecting to provider
     provider = new ethers.providers.JsonRpcProvider(process.env.ALCHEMY_URL); // provider connecting to ETH mainnet
@@ -31,15 +40,6 @@ describe("Read and Write to the Blockchain", () => {
     const network = await provider.getNetwork();
     console.log(`Chain ID: ${network.chainId}`);
   });
-
-  // get price information
-  const getAmountOut = async () => {
-    const amountsOut = await contractRouter.getAmountsOut(amountIn, [
-      addressFrom,
-      addressTo,
-    ]);
-    return amountsOut[1].toString();
-  };
 
   beforeEach(async function () {
     const decimals = await contractToken.decimals();
