@@ -32,7 +32,13 @@ describe("Read and Write to the Blockchain", () => {
     const wethContract = new ethers.Contract(addressFrom, wethABI, signer);
     const tx = await wethContract.deposit({ value: amount });
     await tx.wait();
+    await new Promise((resolve) => setTimeout(resolve, 1000)); // 1 second delay
     console.log(`Wrapped ${ethers.utils.formatEther(amount)} ETH to WETH`);
+
+    const wethBalance = await wethContract.balanceOf(signer.address);
+    console.log(
+      `WETH balance after wrapping: ${ethers.utils.formatEther(wethBalance)}`
+    );
   };
 
   before(async () => {
@@ -94,16 +100,16 @@ describe("Read and Write to the Blockchain", () => {
     const ethAmount = ethers.utils.parseUnits("10.0", 18); // Ensure this is enough for the amountIn
     await wrapETH(ownerSigner, ethAmount);
 
-    // Check balance of the token to be swapped
-    const tokenBalance = await contractToken.balanceOf(myAddress);
-    console.log(
-      `Token balance before swap: ${ethers.utils.formatUnits(tokenBalance, 18)}`
-    );
+    // // Check balance of the token to be swapped
+    // const tokenBalance = await contractToken.balanceOf(myAddress);
+    // console.log(
+    //   `Token balance before swap: ${ethers.utils.formatUnits(tokenBalance, 18)}`
+    // );
 
-    if (tokenBalance.lt(amountIn)) {
-      console.error("Insufficient token balance for swap.");
-      return;
-    }
+    // if (tokenBalance.lt(amountIn)) {
+    //   console.error("Insufficient token balance for swap.");
+    //   return;
+    // }
 
     // Approve the Uniswap router to spend the token
     const approveTx = await contractToken
