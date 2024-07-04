@@ -36,15 +36,13 @@ describe("Read and Write to the Blockchain", () => {
     contractRouter = new ethers.Contract(addressRouter, routerABI, provider);
     contractToken = new ethers.Contract(addressFrom, erc20ABI, provider);
 
-    // Check chain ID
-    const network = await provider.getNetwork();
-    console.log(`Chain ID: ${network.chainId}`);
-  });
-
-  beforeEach(async function () {
     const decimals = await contractToken.decimals();
     const amountInHuman = "1";
     amountIn = ethers.utils.parseUnits(amountInHuman, decimals).toString();
+
+    // Check chain ID
+    const network = await provider.getNetwork();
+    console.log(`Chain ID: ${network.chainId}`);
   });
 
   it("connects to a provider, factory, token and router", () => {
