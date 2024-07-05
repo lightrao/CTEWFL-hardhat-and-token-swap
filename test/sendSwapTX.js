@@ -91,11 +91,13 @@ describe("Read and Write to the Blockchain", () => {
       ownerSigner
     );
 
-    const contractWethWithHardhatSigner = new ethers.Contract(
-      addressFrom,
-      erc20ABI,
-      ownerSigner
-    );
+    // const contractWethWithHardhatSigner = new ethers.Contract(
+    //   addressFrom,
+    //   erc20ABI,
+    //   ownerSigner
+    // );
+    const contractWethWithHardhatSigner =
+      await contractWethWithAlchemyProvider.connect(ownerSigner);
 
     const myAddress = ownerSigner.address; // Using the owner's address directly from the signer
     console.log(`Using address: ${myAddress}`);
