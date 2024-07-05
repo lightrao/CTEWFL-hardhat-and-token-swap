@@ -34,7 +34,6 @@ describe("Read and Write to the Blockchain", () => {
   const wrapETH = async (contractWethWithHardhatSigner, amount) => {
     const tx = await contractWethWithHardhatSigner.deposit({ value: amount });
     await tx.wait();
-    await new Promise((resolve) => setTimeout(resolve, 1000)); // 1 second delay
     console.log(`Wrapped ${ethers.utils.formatEther(amount)} ETH to WETH`);
   };
 
@@ -101,11 +100,6 @@ describe("Read and Write to the Blockchain", () => {
       ownerSigner
     );
 
-    // const contractWethWithHardhatSigner = new ethers.Contract(
-    //   addressFrom,
-    //   erc20ABI,
-    //   ownerSigner
-    // );
     const contractWethWithAlchemyProviderAndHardhatSigner =
       await contractWethWithAlchemyProvider.connect(ownerSigner);
 
@@ -138,7 +132,6 @@ describe("Read and Write to the Blockchain", () => {
       .connect(ownerSigner)
       .approve(addressRouter, amountIn);
     await approveTx.wait();
-    // console.log(`Approval transaction hash: ${approveTx.hash}`);
 
     // Log balance before the transaction
     const balanceBefore = await ownerSigner.getBalance();
@@ -159,11 +152,8 @@ describe("Read and Write to the Blockchain", () => {
       }
     );
 
-    // console.log(`Swap transaction hash: ${txSwap.hash}`);
-
     // Wait for the transaction to be mined
     const receipt = await txSwap.wait();
-    // console.log("Transaction receipt:", receipt);
 
     // Log balance after the transaction
     const balanceAfter = await ownerSigner.getBalance();
@@ -186,11 +176,7 @@ describe("Read and Write to the Blockchain", () => {
     const txReceipt = await mainnetForkProvider.getTransactionReceipt(
       txSwap.hash
     );
-
-    // console.log("\nSWAP TRANSACTION");
-    // console.log(txSwap);
-
-    // console.log("\nTRANSACTION RECEIPT");
-    // console.log(txReceipt);
+    console.log("\nTRANSACTION RECEIPT");
+    console.log(txReceipt);
   });
 });
