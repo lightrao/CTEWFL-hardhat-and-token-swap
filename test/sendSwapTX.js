@@ -10,14 +10,17 @@ const {
 } = require("../utils/AddressList");
 
 const {
-  erc20ABI,
-  wethABI,
+  erc20ABI, // identical to wethABI
   factoryABI, // ABI for Uniswap V2 Factory Contract
   routerABI, // ABI for Uniswap V2 Router Contract
 } = require("../utils/AbiList");
 
 describe("Read and Write to the Blockchain", () => {
-  let provider, contractFactory, contractRouter, contractToken, amountIn;
+  let provider,
+    contractFactory,
+    contractRouter,
+    contractWethWithAlchemyProvider,
+    amountIn;
 
   // get price information
   const getAmountOut = async () => {
@@ -28,17 +31,11 @@ describe("Read and Write to the Blockchain", () => {
     return amountsOut[1].toString();
   };
 
-  const wrapETH = async (signer, amount) => {
-    const wethContract = new ethers.Contract(addressFrom, wethABI, signer);
-    const tx = await wethContract.deposit({ value: amount });
+  const wrapETH = async (contractWethWithHardhatSigner, amount) => {
+    const tx = await contractWethWithHardhatSigner.deposit({ value: amount });
     await tx.wait();
     await new Promise((resolve) => setTimeout(resolve, 1000)); // 1 second delay
     console.log(`Wrapped ${ethers.utils.formatEther(amount)} ETH to WETH`);
-
-    const wethBalance = await wethContract.balanceOf(signer.address);
-    console.log(
-      `WETH balance after wrapping: ${ethers.utils.formatEther(wethBalance)}`
-    );
   };
 
   before(async () => {
@@ -48,9 +45,13 @@ describe("Read and Write to the Blockchain", () => {
     // contract objects
     contractFactory = new ethers.Contract(addressFactory, factoryABI, provider);
     contractRouter = new ethers.Contract(addressRouter, routerABI, provider);
-    contractToken = new ethers.Contract(addressFrom, erc20ABI, provider);
+    contractWethWithAlchemyProvider = new ethers.Contract(
+      addressFrom,
+      erc20ABI,
+      provider
+    );
 
-    const decimals = await contractToken.decimals();
+    const decimals = await contractWethWithAlchemyProvider.decimals();
     const amountInHuman = "1"; // Ensure this value is sufficient for testing
     amountIn = ethers.utils.parseUnits(amountInHuman, decimals).toString();
 
@@ -70,7 +71,7 @@ describe("Read and Write to the Blockchain", () => {
       "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D"
     );
 
-    expect(contractToken.address).to.equal(
+    expect(contractWethWithAlchemyProvider.address).to.equal(
       "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"
     );
   });
@@ -90,6 +91,12 @@ describe("Read and Write to the Blockchain", () => {
       ownerSigner
     );
 
+    const contractWethWithHardhatSigner = new ethers.Contract(
+      addressFrom,
+      erc20ABI,
+      ownerSigner
+    );
+
     const myAddress = ownerSigner.address; // Using the owner's address directly from the signer
     console.log(`Using address: ${myAddress}`);
 
@@ -98,25 +105,27 @@ describe("Read and Write to the Blockchain", () => {
 
     // Wrap ETH to WETH
     const ethAmount = ethers.utils.parseUnits("10.0", 18); // Ensure this is enough for the amountIn
-    await wrapETH(ownerSigner, ethAmount);
+    await wrapETH(contractWethWithHardhatSigner, ethAmount);
 
-    // // Check balance of the token to be swapped
-    // const tokenBalance = await contractToken.balanceOf(myAddress);
-    // console.log(
-    //   `Token balance before swap: ${ethers.utils.formatUnits(tokenBalance, 18)}`
-    // );
+    // Check balance of the token to be swapped
+    const tokenBalance = await contractWethWithHardhatSigner.balanceOf(
+      myAddress
+    );
+    console.log(
+      `WETH balance before swap: ${ethers.utils.formatUnits(tokenBalance, 18)}`
+    );
 
-    // if (tokenBalance.lt(amountIn)) {
-    //   console.error("Insufficient token balance for swap.");
-    //   return;
-    // }
+    if (tokenBalance.lt(amountIn)) {
+      console.error("Insufficient token balance for swap.");
+      return;
+    }
 
     // Approve the Uniswap router to spend the token
-    const approveTx = await contractToken
+    const approveTx = await contractWethWithAlchemyProvider
       .connect(ownerSigner)
       .approve(addressRouter, amountIn);
     await approveTx.wait();
-    console.log(`Approval transaction hash: ${approveTx.hash}`);
+    // console.log(`Approval transaction hash: ${approveTx.hash}`);
 
     // Log balance before the transaction
     const balanceBefore = await ownerSigner.getBalance();
@@ -137,11 +146,11 @@ describe("Read and Write to the Blockchain", () => {
       }
     );
 
-    console.log(`Swap transaction hash: ${txSwap.hash}`);
+    // console.log(`Swap transaction hash: ${txSwap.hash}`);
 
     // Wait for the transaction to be mined
     const receipt = await txSwap.wait();
-    console.log("Transaction receipt:", receipt);
+    // console.log("Transaction receipt:", receipt);
 
     // Log balance after the transaction
     const balanceAfter = await ownerSigner.getBalance();
@@ -149,9 +158,11 @@ describe("Read and Write to the Blockchain", () => {
       `ETH Balance after swap: ${ethers.utils.formatEther(balanceAfter)}`
     );
 
-    const tokenBalanceAfter = await contractToken.balanceOf(myAddress);
+    const tokenBalanceAfter = await contractWethWithHardhatSigner.balanceOf(
+      myAddress
+    );
     console.log(
-      `Token balance after swap: ${ethers.utils.formatUnits(
+      `WETH balance after swap: ${ethers.utils.formatUnits(
         tokenBalanceAfter,
         18
       )}`
@@ -162,10 +173,10 @@ describe("Read and Write to the Blockchain", () => {
       txSwap.hash
     );
 
-    console.log("\nSWAP TRANSACTION");
-    console.log(txSwap);
+    // console.log("\nSWAP TRANSACTION");
+    // console.log(txSwap);
 
-    console.log("\nTRANSACTION RECEIPT");
-    console.log(txReceipt);
+    // console.log("\nTRANSACTION RECEIPT");
+    // console.log(txReceipt);
   });
 });
