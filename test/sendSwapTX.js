@@ -34,6 +34,8 @@ describe("Read and Write to the Blockchain", () => {
 
   before(async () => {
     // connecting to provider
+    // Although the initial configuration URL (process.env.ALCHEMY_URL) points to a live mainnet node, all interactions in your test script are routed through the local forked network created by Hardhat.
+    // same as "provider = new ethers.providers.JsonRpcProvider("http://localhost:8545");"
     provider = new ethers.providers.JsonRpcProvider(process.env.ALCHEMY_URL);
 
     // log provider's info
