@@ -82,6 +82,7 @@ describe("Read and Write to the Blockchain", () => {
     const ownerSignerRpcUrl = ownerSigner.provider.connection.url;
     console.log(`ownerSigner's RPC URL: ${ownerSignerRpcUrl}`);
 
+    // connected to a signer from Hardhat, and it is used for sending transactions in the local forked environment.
     const mainnetForkUniswapRouter = new ethers.Contract(
       addressRouter,
       routerABI,
