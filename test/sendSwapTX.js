@@ -89,7 +89,12 @@ describe("Read and Write to the Blockchain", () => {
       ownerSigner
     );
 
-    const contractWethWithSigner = contractWeth.connect(ownerSigner);
+    // local forked environment.
+    const contractWethWithSigner = new ethers.Contract(
+      addressFrom,
+      erc20ABI,
+      ownerSigner
+    );
 
     const myAddress = ownerSigner.address;
     console.log(`Using address: ${myAddress}`);
