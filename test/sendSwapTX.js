@@ -16,71 +16,52 @@ const {
 } = require("../utils/AbiList");
 
 describe("Read and Write to the Blockchain", () => {
-  let providerWithAlchemyRpcUrl,
-    contractFactoryWithAlchemyProvider,
-    contractRouterWithAlchemyProvider,
-    contractWethWithAlchemyProvider,
-    amountIn;
+  let provider, contractFactory, contractRouter, contractWeth, amountIn;
 
-  // get price information
   const getAmountOut = async () => {
-    const amountsOut = await contractRouterWithAlchemyProvider.getAmountsOut(
-      amountIn,
-      [addressFrom, addressTo]
-    );
+    const amountsOut = await contractRouter.getAmountsOut(amountIn, [
+      addressFrom,
+      addressTo,
+    ]);
     return amountsOut[1].toString();
   };
 
-  const wrapETH = async (contractWethWithHardhatSigner, amount) => {
-    const tx = await contractWethWithHardhatSigner.deposit({ value: amount });
+  const wrapETH = async (contractWethSigner, amount) => {
+    const tx = await contractWethSigner.deposit({ value: amount });
     await tx.wait();
     console.log(`Wrapped ${ethers.utils.formatEther(amount)} ETH to WETH`);
   };
 
   before(async () => {
     // connecting to provider
-    providerWithAlchemyRpcUrl = new ethers.providers.JsonRpcProvider(
-      process.env.ALCHEMY_URL
-    ); // provider connecting to ETH mainnet
+    provider = new ethers.providers.JsonRpcProvider(process.env.ALCHEMY_URL);
 
     // contract objects
-    contractFactoryWithAlchemyProvider = new ethers.Contract(
-      addressFactory,
-      factoryABI,
-      providerWithAlchemyRpcUrl
-    );
-    contractRouterWithAlchemyProvider = new ethers.Contract(
-      addressRouter,
-      routerABI,
-      providerWithAlchemyRpcUrl
-    );
-    contractWethWithAlchemyProvider = new ethers.Contract(
-      addressFrom,
-      erc20ABI,
-      providerWithAlchemyRpcUrl
-    );
+    contractFactory = new ethers.Contract(addressFactory, factoryABI, provider);
+    contractRouter = new ethers.Contract(addressRouter, routerABI, provider);
+    contractWeth = new ethers.Contract(addressFrom, erc20ABI, provider);
 
-    const decimals = await contractWethWithAlchemyProvider.decimals();
+    const decimals = await contractWeth.decimals();
     const amountInHuman = "1"; // Ensure this value is sufficient for testing
     amountIn = ethers.utils.parseUnits(amountInHuman, decimals).toString();
 
     // Check chain ID
-    const network = await providerWithAlchemyRpcUrl.getNetwork();
+    const network = await provider.getNetwork();
     console.log(`Chain ID: ${network.chainId}`);
   });
 
-  it("connects to a provider, factory, token and router", () => {
-    assert(providerWithAlchemyRpcUrl._isProvider);
+  it("connects to a provider, factory, token, and router", () => {
+    assert(provider._isProvider);
 
-    expect(contractFactoryWithAlchemyProvider.address).to.equal(
+    expect(contractFactory.address).to.equal(
       "0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f"
     );
 
-    expect(contractRouterWithAlchemyProvider.address).to.equal(
+    expect(contractRouter.address).to.equal(
       "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D"
     );
 
-    expect(contractWethWithAlchemyProvider.address).to.equal(
+    expect(contractWeth.address).to.equal(
       "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"
     );
   });
@@ -100,24 +81,20 @@ describe("Read and Write to the Blockchain", () => {
       ownerSigner
     );
 
-    const contractWethWithAlchemyProviderAndHardhatSigner =
-      await contractWethWithAlchemyProvider.connect(ownerSigner);
+    const contractWethWithSigner = contractWeth.connect(ownerSigner);
 
-    const myAddress = ownerSigner.address; // Using the owner's address directly from the signer
+    const myAddress = ownerSigner.address;
     console.log(`Using address: ${myAddress}`);
 
     const amountOut = await getAmountOut();
     console.log(`Amount Out: ${amountOut}`);
 
     // Wrap ETH to WETH
-    const ethAmount = ethers.utils.parseUnits("10.0", 18); // Ensure this is enough for the amountIn
-    await wrapETH(contractWethWithAlchemyProviderAndHardhatSigner, ethAmount);
+    const ethAmount = ethers.utils.parseUnits("10.0", 18);
+    await wrapETH(contractWethWithSigner, ethAmount);
 
     // Check balance of the token to be swapped
-    const tokenBalance =
-      await contractWethWithAlchemyProviderAndHardhatSigner.balanceOf(
-        myAddress
-      );
+    const tokenBalance = await contractWethWithSigner.balanceOf(myAddress);
     console.log(
       `WETH balance before swap: ${ethers.utils.formatUnits(tokenBalance, 18)}`
     );
@@ -128,9 +105,10 @@ describe("Read and Write to the Blockchain", () => {
     }
 
     // Approve the Uniswap router to spend the token
-    const approveTx = await contractWethWithAlchemyProvider
-      .connect(ownerSigner)
-      .approve(addressRouter, amountIn);
+    const approveTx = await contractWethWithSigner.approve(
+      addressRouter,
+      amountIn
+    );
     await approveTx.wait();
 
     // Log balance before the transaction
@@ -140,11 +118,11 @@ describe("Read and Write to the Blockchain", () => {
     );
 
     const txSwap = await mainnetForkUniswapRouter.swapExactTokensForTokens(
-      amountIn, // amount In,
-      amountOut, // amount Out,
-      [addressFrom, addressTo], // path,
-      myAddress, // address to,
-      Date.now() + 1000 * 60 * 5, // deadline,
+      amountIn, // amount In
+      amountOut, // amount Out
+      [addressFrom, addressTo], // path
+      myAddress, // address to
+      Date.now() + 60 * 5, // deadline in seconds
       {
         gasLimit: 200000,
         gasPrice: ethers.utils.parseUnits("50.5", "gwei"),
@@ -161,10 +139,7 @@ describe("Read and Write to the Blockchain", () => {
       `ETH Balance after swap: ${ethers.utils.formatEther(balanceAfter)}`
     );
 
-    const tokenBalanceAfter =
-      await contractWethWithAlchemyProviderAndHardhatSigner.balanceOf(
-        myAddress
-      );
+    const tokenBalanceAfter = await contractWethWithSigner.balanceOf(myAddress);
     console.log(
       `WETH balance after swap: ${ethers.utils.formatUnits(
         tokenBalanceAfter,
@@ -176,7 +151,7 @@ describe("Read and Write to the Blockchain", () => {
     const txReceipt = await mainnetForkProvider.getTransactionReceipt(
       txSwap.hash
     );
-    console.log("\nTRANSACTION RECEIPT");
-    console.log(txReceipt);
+    // console.log("\nTRANSACTION RECEIPT");
+    // console.log(txReceipt);
   });
 });
